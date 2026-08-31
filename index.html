@@ -282,11 +282,8 @@ function show(i){
     document.getElementById('day'+d.n).classList.toggle('active', j===i);
     document.getElementById('tab'+d.n).setAttribute('aria-selected', j===i);
   });
-  if(typeof setDur==='function') setDur(dur);
+  setDur(dur);
 }
-// open today's most likely day: Mon=1, Tue=2, Thu=3, Fri/Sat=4
-const wd = new Date().getDay();
-show(({1:0,2:1,4:2,5:3,6:3})[wd] ?? 0);
 
 // ---------- Timer ----------
 const clock = document.getElementById('clock'), tlabel = document.getElementById('tlabel');
@@ -314,7 +311,10 @@ startbtn.addEventListener('click', ()=>{
   tlabel.textContent = circuit ? 'Work' : 'Resting'; render();
 });
 document.querySelectorAll('.timer [data-t]').forEach(b=>b.addEventListener('click', ()=>setDur(+b.dataset.t)));
-setDur(30);
+
+// open today's most likely day: Mon=1, Tue=2, Thu=3, Fri/Sat=4 (also primes the timer via setDur)
+const wd = new Date().getDay();
+show(({1:0,2:1,4:2,5:3,6:3})[wd] ?? 0);
 </script>
 </body>
 </html>
