@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Home strength plan</title>
+<style>
+  :root{
+    --page:#EEF2F6; --card:#FFFFFF; --ink:#1F2A44; --ink-soft:#5A657D; --line:#DDE3EC;
+    --accent:#E2546E; --accent-ink:#FFFFFF;
+    --tile-1:#FFE3EA; --tile-2:#DDEBFF; --tile-3:#FFF0D2; --tile-4:#DFF4E6;
+    --d1:#C94A63; --d2:#3A6FC4; --d3:#C98A1B; --d4:#2E9A63;
+    --radius:18px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--page);color:var(--ink);
+    font-family:"Avenir Next","Segoe UI",-apple-system,BlinkMacSystemFont,system-ui,sans-serif;
+    font-size:16px;line-height:1.45;-webkit-text-size-adjust:100%}
+  .wrap{max-width:480px;margin:0 auto;padding:0 16px 120px}
+
+  header.top{padding:22px 0 10px}
+  header.top h1{font-size:30px;line-height:1.05;letter-spacing:-.02em;font-weight:800;margin:0 0 6px}
+  header.top p{margin:0;color:var(--ink-soft);font-size:15px}
+
+  nav.days{position:sticky;top:0;z-index:5;background:var(--page);padding:10px 0 12px;display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+  nav.days button{appearance:none;border:0;background:var(--card);border-radius:14px;padding:10px 6px 8px;text-align:left;cursor:pointer;color:var(--ink);border:2px solid transparent;font-family:inherit}
+  nav.days button .n{display:block;font-weight:800;font-size:18px;line-height:1}
+  nav.days button .f{display:block;font-size:11px;color:var(--ink-soft);margin-top:4px;line-height:1.15}
+  nav.days button[aria-selected="true"]{border-color:var(--daycol)}
+  nav.days button[aria-selected="true"] .n{color:var(--daycol)}
+  nav.days button:focus-visible{outline:3px solid var(--daycol);outline-offset:2px}
+
+  section.day{display:none}
+  section.day.active{display:block}
+
+  .daytitle{margin:14px 0 4px;font-size:24px;font-weight:800;letter-spacing:-.01em}
+  .format{background:var(--card);border-radius:var(--radius);padding:14px 16px;margin:12px 0 14px;display:flex;gap:14px;align-items:center}
+  .format .big{font-size:34px;font-weight:800;line-height:1;color:var(--daycol);min-width:72px;flex:none}
+  .format .big small{display:block;font-size:12px;font-weight:600;color:var(--ink-soft);margin-top:4px}
+  .format p{margin:0;font-size:14px;color:var(--ink-soft)}
+
+  .strip{display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:14px;background:var(--card);margin:8px 0;font-size:14px}
+  .strip b{font-weight:700;color:var(--ink)}
+  .strip span{color:var(--ink-soft)}
+  .strip .ico{width:34px;height:34px;flex:none}
+
+  ol.ex{list-style:none;margin:0;padding:0}
+  ol.ex li{background:var(--card);border-radius:var(--radius);margin:10px 0;padding:12px 12px 12px 12px;display:grid;grid-template-columns:96px 1fr 40px;gap:12px;align-items:start;position:relative}
+  ol.ex li.done{opacity:.55}
+  ol.ex li.done .name{text-decoration:line-through}
+  .fig{width:96px;height:96px;border-radius:14px;background:var(--tile);display:flex;align-items:center;justify-content:center;position:relative}
+  .fig svg{width:88px;height:88px;display:block}
+  .fig .num{position:absolute;top:6px;left:8px;font-size:12px;font-weight:800;color:var(--daycol)}
+  .info{padding-top:2px;min-width:0}
+  .name{font-weight:800;font-size:17px;line-height:1.2;margin:0}
+  .dose{display:inline-block;margin:6px 0 6px;padding:3px 9px;border-radius:999px;background:var(--daycol);color:#fff;font-weight:700;font-size:13px}
+  .cue{margin:0;font-size:14px;color:var(--ink-soft);line-height:1.4}
+  .tick{appearance:none;border:2px solid var(--line);background:#fff;width:34px;height:34px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;margin-top:2px;padding:0}
+  .tick svg{width:18px;height:18px;display:none}
+  li.done .tick{background:var(--daycol);border-color:var(--daycol)}
+  li.done .tick svg{display:block}
+  .tick:focus-visible{outline:3px solid var(--daycol);outline-offset:2px}
+
+  .reset{background:none;border:0;color:var(--ink-soft);font-size:14px;padding:8px 0;cursor:pointer;font-family:inherit;text-decoration:underline}
+
+  .notes{margin-top:26px}
+  .notes h2{font-size:20px;font-weight:800;margin:0 0 10px;letter-spacing:-.01em}
+  details{background:var(--card);border-radius:var(--radius);margin:8px 0;padding:0 16px}
+  summary{padding:14px 0;font-weight:700;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center}
+  summary::-webkit-details-marker{display:none}
+  summary::after{content:"+";font-size:22px;color:var(--ink-soft);font-weight:400}
+  details[open] summary::after{content:"–"}
+  details p, details ul{margin:0 0 14px;font-size:15px;color:var(--ink-soft)}
+  details ul{padding-left:18px}
+  details li{margin:4px 0}
+
+  .timer{position:fixed;left:0;right:0;bottom:0;z-index:10;padding:10px 16px calc(12px + env(safe-area-inset-bottom));background:var(--ink);color:#fff}
+  .timer .inner{max-width:480px;margin:0 auto;display:flex;align-items:center;gap:10px}
+  .timer .clock{font-variant-numeric:tabular-nums;font-size:30px;font-weight:800;min-width:78px;line-height:1}
+  .timer .label{font-size:12px;color:#B7C0D3;line-height:1.1;min-width:52px}
+  .timer .btns{margin-left:auto;display:flex;gap:6px}
+  .timer button{appearance:none;border:0;border-radius:999px;padding:9px 12px;font-weight:700;font-size:14px;cursor:pointer;font-family:inherit;background:#334059;color:#fff}
+  .timer button.go{background:var(--accent);color:var(--accent-ink)}
+  .timer button:focus-visible{outline:3px solid #fff;outline-offset:2px}
+  .timer.work{background:#B34456}
+  .timer.rest{background:#2C6B4A}
+
+  @media (prefers-reduced-motion:no-preference){
+    ol.ex li{transition:opacity .2s}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <h1>Home strength plan</h1>
+    <p>Four days a week, thirty minutes each. Two 4 kg dumbbells and the treadmill.</p>
+  </header>
+
+  <nav class="days" role="tablist" aria-label="Choose a day" id="tabs"></nav>
+
+  <div id="days"></div>
+
+  <div class="notes">
+    <h2>Good to know</h2>
+    <details>
+      <summary>Your first two weeks</summary>
+      <p>Do 2 rounds instead of 3 and don't worry about the slow tempo yet — just learn the movements. Mild soreness the next day is normal; sharp pain isn't. From week 3, move up to 3 rounds.</p>
+    </details>
+    <details>
+      <summary>Which days to train</summary>
+      <p>Monday, Tuesday, Thursday and Friday or Saturday works well. Keep a rest day after Day 2. A 20‑minute treadmill walk on rest days is a bonus, not a requirement.</p>
+    </details>
+    <details>
+      <summary>How to keep progressing</summary>
+      <p>Muscle only changes when the work gets slightly harder over time. Change one thing every week or two, in this order:</p>
+      <ul>
+        <li>Slow the lowering phase to 3–4 seconds</li>
+        <li>Add reps, up to 15 per exercise</li>
+        <li>Add a 4th round if it still fits in 30 minutes</li>
+        <li>When legs and glutes feel easy, a second pair at 8 kg is the best upgrade</li>
+      </ul>
+    </details>
+    <details>
+      <summary>What to expect</summary>
+      <p>Strength and posture changes show up within about 3 weeks. Visible definition usually takes 8–10 weeks of consistent sessions. Protein helps muscle show sooner — a palm‑sized portion with each meal is a simple target.</p>
+    </details>
+  </div>
+</div>
+
+<div class="timer" id="timer" aria-live="polite">
+  <div class="inner">
+    <div class="clock" id="clock">0:30</div>
+    <div class="label" id="tlabel">Rest timer</div>
+    <div class="btns">
+      <button type="button" data-t="30">30s</button>
+      <button type="button" data-t="60">60s</button>
+      <button type="button" class="go" id="startbtn">Start</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ---------- Figures: simple stick figures, drawn from joint positions (100 x 100 canvas, floor at y=88) ----------
+const FIG = {
+  goblet:  {head:[38,24], neck:[43,34], hip:[60,60], legs:[[[38,64],[42,88]]], arms:[[[36,44],[32,38]]], db:[[31,36,90]]},
+  lunge:   {head:[50,14], neck:[50,24], hip:[50,54], legs:[[[34,68],[34,88]],[[66,78],[80,88]]], arms:[[[52,40],[54,56]],[[47,40],[45,56]]], db:[[54,58,0],[45,58,0]]},
+  bridge:  {head:[14,72], neck:[22,74], hip:[50,52], legs:[[[68,52],[76,86]]], arms:[[[32,84],[42,86]]], db:[[50,44,0]]},
+  deadbug: {head:[12,80], neck:[22,80], hip:[52,80], legs:[[[54,58],[72,58]],[[70,72],[90,66]]], arms:[[[24,62],[26,46]],[[14,66],[6,52]]], db:[[26,44,0]]},
+  plank:   {head:[12,58], neck:[22,60], hip:[56,66], legs:[[[74,74],[90,86]]], arms:[[[22,74],[22,88]]]},
+  inclinepu:{head:[18,34], neck:[28,40], hip:[58,58], legs:[[[74,72],[88,86]]], arms:[[[22,54],[16,66]]], box:[6,66,20,22]},
+  row:     {head:[28,40], neck:[36,44], hip:[62,50], legs:[[[64,70],[66,88]]], arms:[[[46,56],[42,48]],[[34,60],[32,74]]], db:[[42,50,0],[32,76,0]]},
+  press:   {head:[50,22], neck:[50,32], hip:[50,58], legs:[[[46,74],[44,88]],[[54,74],[56,88]]], arms:[[[38,22],[38,10]],[[62,22],[62,10]]], db:[[38,8,0],[62,8,0]]},
+  curl:    {head:[50,14], neck:[50,24], hip:[50,52], legs:[[[46,70],[44,88]],[[54,70],[56,88]]], arms:[[[40,48],[40,32]],[[60,48],[60,32]]], db:[[40,30,0],[60,30,0]]},
+  kickback:{head:[28,40], neck:[36,44], hip:[62,50], legs:[[[62,70],[64,88]]], arms:[[[44,54],[58,56]]], db:[[60,56,0]]},
+  birddog: {head:[16,42], neck:[26,46], hip:[60,46], legs:[[[62,88],[80,88]],[[76,44],[94,40]]], arms:[[[28,66],[28,88]],[[14,40],[4,36]]]},
+  thruster:{head:[38,24], neck:[43,34], hip:[60,60], legs:[[[38,64],[42,88]]], arms:[[[36,22],[34,10]]], db:[[34,8,0]]},
+  rdl:     {head:[26,40], neck:[34,44], hip:[62,50], legs:[[[62,70],[64,88]]], arms:[[[38,58],[42,72]],[[36,60],[40,74]]], db:[[42,74,0],[40,76,0]]},
+  shtap:   {head:[12,58], neck:[22,60], hip:[56,66], legs:[[[74,74],[90,86]]], arms:[[[22,74],[22,88]],[[32,72],[26,60]]]},
+  sumo:    {head:[50,14], neck:[50,24], hip:[50,52], legs:[[[28,62],[22,88]],[[72,62],[78,88]]], arms:[[[46,50],[48,66]],[[54,50],[52,66]]], db:[[50,68,0]]},
+  sidebend:{head:[36,16], neck:[41,26], hip:[50,54], legs:[[[46,70],[44,88]],[[54,70],[56,88]]], arms:[[[32,42],[30,58]],[[56,34],[64,22]]], db:[[30,60,0]]},
+  onerow:  {head:[28,40], neck:[36,44], hip:[62,50], legs:[[[60,70],[62,88]]], arms:[[[46,58],[58,70]],[[46,52],[38,54]]], db:[[36,54,0]]},
+  latlunge:{head:[50,14], neck:[50,24], hip:[46,52], legs:[[[28,60],[22,88]],[[66,70],[80,88]]], arms:[[[42,44],[40,60]],[[52,44],[52,60]]], db:[[40,62,0],[52,62,0]]},
+  superman:{head:[10,68], neck:[18,72], hip:[54,80], legs:[[[70,74],[88,66]]], arms:[[[10,66],[4,60]]]},
+  sideplank:{head:[14,50], neck:[22,56], hip:[54,72], legs:[[[72,80],[90,88]]], arms:[[[24,74],[28,88]],[[24,44],[28,32]]]},
+};
+
+function drawFig(key){
+  const f = FIG[key]; if(!f) return '';
+  const S = 'stroke="#1F2A44" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none"';
+  let s = `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">`;
+  s += `<line x1="0" y1="90" x2="100" y2="90" stroke="#1F2A44" stroke-opacity=".18" stroke-width="3" stroke-linecap="round"/>`;
+  if(f.box){ const [x,y,w,h]=f.box; s += `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="3" fill="#1F2A44" fill-opacity=".18"/>`; }
+  // torso
+  s += `<line x1="${f.neck[0]}" y1="${f.neck[1]}" x2="${f.hip[0]}" y2="${f.hip[1]}" ${S}/>`;
+  // legs
+  for(const [k,ft] of f.legs){ s += `<polyline points="${f.hip[0]},${f.hip[1]} ${k[0]},${k[1]} ${ft[0]},${ft[1]}" ${S}/>`; }
+  // arms
+  for(const [e,h] of f.arms){ s += `<polyline points="${f.neck[0]},${f.neck[1]} ${e[0]},${e[1]} ${h[0]},${h[1]}" ${S}/>`; }
+  // head
+  s += `<circle cx="${f.head[0]}" cy="${f.head[1]}" r="7" fill="#1F2A44"/>`;
+  // dumbbells
+  for(const d of (f.db||[])){
+    const [x,y,rot]=d;
+    s += `<g transform="translate(${x} ${y}) rotate(${rot})"><rect x="-9" y="-3" width="18" height="6" rx="2" fill="#E2546E"/><rect x="-11" y="-5" width="4" height="10" rx="1.5" fill="#E2546E"/><rect x="7" y="-5" width="4" height="10" rx="1.5" fill="#E2546E"/></g>`;
+  }
+  return s + '</svg>';
+}
+
+const walkIcon = `<svg class="ico" viewBox="0 0 100 100" aria-hidden="true"><line x1="10" y1="90" x2="90" y2="90" stroke="#1F2A44" stroke-opacity=".18" stroke-width="4" stroke-linecap="round"/><g stroke="#1F2A44" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" fill="none"><line x1="50" y1="28" x2="50" y2="56"/><polyline points="50,56 34,72 30,88"/><polyline points="50,56 64,70 76,86"/><polyline points="50,32 38,44 30,40"/><polyline points="50,32 62,44 72,52"/></g><circle cx="50" cy="16" r="9" fill="#1F2A44"/></svg>`;
+const stretchIcon = `<svg class="ico" viewBox="0 0 100 100" aria-hidden="true"><line x1="10" y1="90" x2="90" y2="90" stroke="#1F2A44" stroke-opacity=".18" stroke-width="4" stroke-linecap="round"/><g stroke="#1F2A44" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" fill="none"><line x1="50" y1="30" x2="50" y2="58"/><polyline points="50,58 42,74 40,88"/><polyline points="50,58 58,74 60,88"/><polyline points="50,32 36,20 30,8"/><polyline points="50,32 64,20 70,8"/></g><circle cx="50" cy="20" r="9" fill="#1F2A44"/></svg>`;
+
+// ---------- Plan data ----------
+const DAYS = [
+  { n:1, focus:'Legs & core', title:'Day 1 · Lower body and core', col:'var(--d1)', tile:'var(--tile-1)',
+    big:'3', small:'rounds', format:'Rest 30 seconds between exercises and 60 seconds between rounds. Move slowly — the lowering half of each rep is where the work is.',
+    ex:[
+      {fig:'goblet', name:'Goblet squat', dose:'12 reps', cue:'Hold one dumbbell against your chest. Lower for 3 seconds, chest up, heels down, then stand tall.'},
+      {fig:'lunge', name:'Reverse lunge', dose:'10 each leg', cue:'Dumbbells at your sides. Step back, drop the back knee towards the floor, push through the front heel.'},
+      {fig:'bridge', name:'Glute bridge', dose:'15 reps', cue:'Lie on your back, dumbbell resting on your hips. Drive hips up and squeeze for 2 seconds at the top.'},
+      {fig:'deadbug', name:'Dead bug', dose:'8 each side', cue:'One dumbbell held above your chest. Slowly lower the opposite arm and leg, keeping your lower back pressed into the floor.'},
+      {fig:'plank', name:'Plank', dose:'30 seconds', cue:'Forearms down, straight line from head to heels, tummy tight. Breathe.'},
+    ]},
+  { n:2, focus:'Arms, chest & back', title:'Day 2 · Upper body', col:'var(--d2)', tile:'var(--tile-2)',
+    big:'3', small:'rounds', format:'Rest 30 seconds between exercises and 60 seconds between rounds. Control the weight on the way down as much as the way up.',
+    ex:[
+      {fig:'inclinepu', name:'Incline push‑up', dose:'10 reps', cue:'Hands on the sofa arm or kitchen counter. Lower your chest to your hands with elbows at 45 degrees.'},
+      {fig:'row', name:'Bent‑over row', dose:'12 reps', cue:'Hinge at the hips with a flat back. Pull both elbows back towards your hips, squeeze between the shoulder blades.'},
+      {fig:'press', name:'Shoulder press', dose:'10 reps', cue:'Dumbbells at shoulder height. Press straight up without arching your back, lower slowly.'},
+      {fig:'curl', name:'Bicep curl', dose:'12 reps', cue:'Elbows pinned to your sides. Curl up, then take 3 seconds to lower.'},
+      {fig:'kickback', name:'Tricep kickback', dose:'12 reps', cue:'Hinge forward, elbows tucked high. Straighten both arms behind you and pause.'},
+      {fig:'birddog', name:'Bird‑dog', dose:'8 each side', cue:'On all fours. Reach the opposite arm and leg out long, hold a second, return without wobbling.'},
+    ]},
+  { n:3, focus:'Full-body circuit', title:'Day 3 · Full‑body circuit', col:'var(--d3)', tile:'var(--tile-3)',
+    big:'30s', small:'work, 30s rest', format:'Work for 30 seconds, rest for 30, straight through the list. Do 3 rounds with a minute between them. Use the timer below — tap 30s and it will alternate work and rest for you.',
+    ex:[
+      {fig:'thruster', name:'Squat to press', dose:'30 seconds', cue:'Dumbbells at your shoulders. Squat down, then stand and press overhead in one flowing movement.'},
+      {fig:'lunge', name:'Alternating forward lunge', dose:'30 seconds', cue:'Step forward into a lunge, push back to standing, swap legs.'},
+      {fig:'rdl', name:'Romanian deadlift', dose:'30 seconds', cue:'Soft knees, hinge at the hips and slide the dumbbells down your thighs. Feel the stretch in the hamstrings, then stand.'},
+      {fig:'shtap', name:'Push‑up to shoulder tap', dose:'30 seconds', cue:'One push‑up (knees down is fine), then tap each shoulder with the opposite hand while holding a plank.'},
+      {fig:'sumo', name:'Sumo squat', dose:'30 seconds', cue:'Wide stance, toes turned out, one dumbbell hanging between your legs. Sit down and drive up through the heels.'},
+      {fig:'sidebend', name:'Standing side bend', dose:'30 seconds', cue:'One dumbbell in one hand. Slide it down the outside of your leg, then pull back up using your waist. Halfway, swap hands.'},
+    ]},
+  { n:4, focus:'Glutes & back', title:'Day 4 · Glutes and back', col:'var(--d4)', tile:'var(--tile-4)',
+    big:'3', small:'rounds', format:'Rest 30 seconds between exercises and 60 seconds between rounds. These are single‑side moves, so go steady and stay balanced.',
+    ex:[
+      {fig:'lunge', name:'Split squat', dose:'10 each leg', cue:'Stand in a long lunge stance and stay there. Lower straight down and up, front knee over the ankle.'},
+      {fig:'onerow', name:'Single‑arm row', dose:'12 each side', cue:'One hand braced on your knee or the sofa. Row the dumbbell up to your ribs and pause at the top.'},
+      {fig:'latlunge', name:'Lateral lunge', dose:'8 each side', cue:'Step wide to one side and sit into that hip, other leg straight. Push back to the middle.'},
+      {fig:'superman', name:'Superman hold', dose:'20 seconds', cue:'Lie face down. Lift arms, chest and legs a few centimetres off the floor and hold.'},
+      {fig:'sideplank', name:'Side plank', dose:'20 seconds each side', cue:'On your forearm, hips lifted and stacked. Keep a straight line from shoulder to feet.'},
+    ]},
+];
+
+const tabs = document.getElementById('tabs');
+const daysEl = document.getElementById('days');
+const tickSvg = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+
+DAYS.forEach((d,i)=>{
+  const b = document.createElement('button');
+  b.type='button'; b.role='tab'; b.id='tab'+d.n; b.setAttribute('aria-controls','day'+d.n);
+  b.style.setProperty('--daycol', d.col);
+  b.innerHTML = `<span class="n">Day ${d.n}</span><span class="f">${d.focus}</span>`;
+  b.addEventListener('click', ()=>show(i));
+  tabs.appendChild(b);
+
+  const s = document.createElement('section');
+  s.className='day'; s.id='day'+d.n; s.role='tabpanel'; s.setAttribute('aria-labelledby','tab'+d.n);
+  s.style.setProperty('--daycol', d.col); s.style.setProperty('--tile', d.tile);
+  let html = `<h2 class="daytitle">${d.title}</h2>
+    <div class="format"><div class="big">${d.big}<small>${d.small}</small></div><p>${d.format}</p></div>
+    <div class="strip">${walkIcon}<div><b>Warm up, 4 minutes.</b> <span>2 minutes brisk walk on the treadmill, then 10 bodyweight squats, 10 arm circles each way, 8 hip openers each side.</span></div></div>
+    <ol class="ex">`;
+  d.ex.forEach((e,j)=>{
+    html += `<li data-key="d${d.n}e${j}">
+      <div class="fig"><span class="num">${j+1}</span>${drawFig(e.fig)}</div>
+      <div class="info"><p class="name">${e.name}</p><span class="dose">${e.dose}</span><p class="cue">${e.cue}</p></div>
+      <button type="button" class="tick" aria-label="Mark ${e.name} done" aria-pressed="false">${tickSvg}</button>
+    </li>`;
+  });
+  html += `</ol>
+    <div class="strip">${stretchIcon}<div><b>Cool down, 2 minutes.</b> <span>Easy treadmill walk, then shake out arms and legs.</span></div></div>
+    <button type="button" class="reset">Clear ticks for this day</button>`;
+  s.innerHTML = html;
+  daysEl.appendChild(s);
+
+  s.querySelectorAll('.tick').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const li = btn.closest('li'); const done = li.classList.toggle('done');
+      btn.setAttribute('aria-pressed', done);
+    });
+  });
+  s.querySelector('.reset').addEventListener('click', ()=>{
+    s.querySelectorAll('li.done').forEach(li=>{li.classList.remove('done'); li.querySelector('.tick').setAttribute('aria-pressed','false');});
+  });
+});
+
+let current = 0;
+function show(i){
+  current = i;
+  DAYS.forEach((d,j)=>{
+    document.getElementById('day'+d.n).classList.toggle('active', j===i);
+    document.getElementById('tab'+d.n).setAttribute('aria-selected', j===i);
+  });
+  if(typeof setDur==='function') setDur(dur);
+}
+// open today's most likely day: Mon=1, Tue=2, Thu=3, Fri/Sat=4
+const wd = new Date().getDay();
+show(({1:0,2:1,4:2,5:3,6:3})[wd] ?? 0);
+
+// ---------- Timer ----------
+const clock = document.getElementById('clock'), tlabel = document.getElementById('tlabel');
+const timerEl = document.getElementById('timer'), startbtn = document.getElementById('startbtn');
+let dur = 30, left = 30, running = null, mode = 'rest', circuit = false;
+
+function fmt(s){ return Math.floor(s/60)+':'+String(s%60).padStart(2,'0'); }
+function render(){ clock.textContent = fmt(left); timerEl.classList.toggle('work', running && mode==='work'); timerEl.classList.toggle('rest', running && mode==='rest'); }
+function setDur(t){ stop(); dur=t; left=t; circuit = (t===30 && current===2); mode = circuit ? 'work' : 'rest'; tlabel.textContent = circuit ? 'Work / rest' : 'Rest timer'; render(); }
+function stop(){ if(running){ clearInterval(running); running=null; } startbtn.textContent='Start'; render(); }
+function buzz(){ if(navigator.vibrate) navigator.vibrate([150,80,150]); }
+function tick(){
+  left--;
+  if(left<=0){
+    buzz();
+    if(circuit){ mode = mode==='work' ? 'rest' : 'work'; left = 30; tlabel.textContent = mode==='work' ? 'Work' : 'Rest'; }
+    else { left = 0; stop(); tlabel.textContent='Go'; render(); return; }
+  }
+  render();
+}
+startbtn.addEventListener('click', ()=>{
+  if(running){ stop(); tlabel.textContent = circuit ? 'Work / rest' : 'Rest timer'; return; }
+  if(left<=0) left = dur;
+  running = setInterval(tick,1000); startbtn.textContent='Stop';
+  tlabel.textContent = circuit ? 'Work' : 'Resting'; render();
+});
+document.querySelectorAll('.timer [data-t]').forEach(b=>b.addEventListener('click', ()=>setDur(+b.dataset.t)));
+setDur(30);
+</script>
+</body>
+</html>
